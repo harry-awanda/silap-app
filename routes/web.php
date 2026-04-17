@@ -22,6 +22,5 @@ Route::middleware(['protected'])->group(function () {
   require __DIR__ . '/modules/guru_piket.php';
   require __DIR__ . '/modules/pelanggaran_share.php';
   require __DIR__ . '/modules/siswa.php';
-  require __DIR__ . '/modules/kesiswaan.php';
   require __DIR__.'/modules/api.php';
 });

@@ -19,10 +19,7 @@ return new class extends Migration {
       // untuk menandai record dibuat otomatis (auto alpa)
       $table->boolean('auto_marked')->default(false);
 
-      // tambahan untuk face recognition
-      $table->decimal('similarity', 5, 3)->nullable();       // hasil kecocokan embedding
-      $table->boolean('liveness_passed')->default(false);    // verifikasi kedip/gerakan
-      $table->string('notes')->nullable();                   // alasan fallback dsb.
+      $table->string('notes')->nullable();
 
       $table->date('date'); // tanggal presensi (wajib; dipakai unique bersama siswa_id)
       $table->time('time'); // waktu presensi (wajib; auto alpa isi via config default_time)

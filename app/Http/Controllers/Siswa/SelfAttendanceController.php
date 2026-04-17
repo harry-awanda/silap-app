@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\{Attendance, Siswa, FaceProfile};
+use App\Models\{Attendance, Siswa};
 use App\Services\GeoFenceService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Carbon\Carbon;
 
 class SelfAttendanceController extends Controller {
 
@@ -39,7 +39,7 @@ class SelfAttendanceController extends Controller {
       $reason
     );
 
-    $key = 'att:precheck:' . ($request->user()->id);
+    $key = 'att:precheck:' . $request->user()->id;
     Cache::put($key, [
       'lat'      => (float) $data['latitude'],
       'lng'      => (float) $data['longitude'],
@@ -67,7 +67,6 @@ class SelfAttendanceController extends Controller {
       'user_agent' => 'nullable|string|max:255',
     ]);
 
-    // ✅ kelas per term dari pivot
     $classroomId = (int) DB::table('term_classroom_siswa')
       ->where('term_id', $termId)
       ->where('siswa_id', $siswa->id)
@@ -76,27 +75,6 @@ class SelfAttendanceController extends Controller {
 
     abort_if(!$classroomId, 403, 'Anda belum terdaftar pada kelas di term aktif.');
 
-    /**
-     * ✅ TRANSISI
-     */
-    if ($this->hasActiveFaceProfile($siswa->id)) {
-      abort(409, 'Anda sudah terdaftar Presensi Wajah. Silakan gunakan Presensi Wajah.');
-    }
-
-    // if (!$this->isWithinFaceTransition()) {
-    //   abort(403, 'Masa transisi presensi mandiri telah berakhir. Silakan daftar wajah di sekolah untuk Presensi Wajah.');
-    // }
-
-    // $maxSelf = (int) config('presensi.face.max_self_during_transition', 3);
-    // $used    = $this->countSelfAttendanceUsed($termId, $siswa->id);
-
-    // if ($used >= $maxSelf) {
-    //   abort(403, "Batas presensi mandiri selama masa transisi ({$maxSelf}x) telah habis. Silakan daftar wajah di sekolah.");
-    // }
-
-    /**
-     * ✅ geofence
-     */
     if (!$this->geo->validateSchool(
       (float) $data['latitude'],
       (float) $data['longitude'],
@@ -145,7 +123,7 @@ class SelfAttendanceController extends Controller {
         'longitude'    => $data['longitude'],
         'accuracy_m'   => $data['accuracy'] ?? null,
         'source'       => 'self',
-        'notes'        => 'Belum enroll wajah (masa transisi)',
+        'notes'        => null,
         'user_agent'   => substr(($data['user_agent'] ?? $request->userAgent() ?? ''), 0, 255),
       ]);
 
@@ -154,10 +132,6 @@ class SelfAttendanceController extends Controller {
         'message' => $status === 'hadir' ? 'Presensi berhasil.' : 'Presensi berhasil (terlambat).',
         'status'  => $att->status,
         'time'    => $att->time,
-        // 'quota'   => [
-        //   'max'  => $maxSelf,
-        //   'used' => $this->countSelfAttendanceUsed($termId, $siswa->id),
-        // ],
       ]);
     });
   }
@@ -176,36 +150,5 @@ class SelfAttendanceController extends Controller {
         abort(422, 'Deteksi pergerakan tidak wajar. Coba ulangi di lokasi stabil.');
       }
     }
-  }
-
-  /**
-   * =========================
-   * Helper TRANSISI
-   * =========================
-   */
-  private function hasActiveFaceProfile(int $siswaId): bool {
-    return FaceProfile::query()
-      ->where('siswa_id', $siswaId)
-      ->where('is_active', true)
-      ->exists();
-  }
-
-  private function isWithinFaceTransition(): bool {
-    $until = config('presensi.face.transition_until');
-
-    // Jika tidak diset -> anggap masih boleh self (mode lama / transisi bebas).
-    if (!$until) return true;
-
-    return now()->lte(Carbon::parse($until)->endOfDay());
-  }
-
-  private function countSelfAttendanceUsed(int $termId, int $siswaId): int {
-    return Attendance::query()
-      ->where('term_id', $termId)
-      ->where('siswa_id', $siswaId)
-      ->where('source', 'self')
-      ->where('auto_marked', false)
-      ->whereIn('status', ['hadir', 'terlambat'])
-      ->count();
   }
 }

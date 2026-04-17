@@ -80,29 +80,5 @@ return [
 //     'active_days' => [1, 2, 3, 4, 5],
 //     'default_time' => env('AUTO_ALPA_TIME', '00:00:00')
 //   ],
-  
-  'face' => [
-    /**
-     * =========================================================
-     * TRANSISI PRESENSI WAJAH
-     * =========================================================
-     * enforce_transition:
-     * - true  : presensi mandiri dibatasi / ditutup
-     * - false : presensi mandiri bebas (mode lama)
-     */
-    'enforce_transition' => (bool) env('FACE_ENFORCE_TRANSITION', false),
-  
-    // batas akhir masa transisi (opsional)
-    'transition_until' => env('FACE_TRANSITION_UNTIL', null),
-  
-    // batas maksimal presensi mandiri selama transisi
-    'max_self_during_transition' => (int) env('FACE_MAX_SELF_TRANSITION', 3),
-  
-    'enroll_session_ttl_seconds' => 120,
-    'max_embeddings_per_profile' => 3,
-    'min_liveness_score' => 0.700,
-    'log_retention_days' => 7,
-    'similarity_threshold' => 0.82,
-  ],
 
 ];
