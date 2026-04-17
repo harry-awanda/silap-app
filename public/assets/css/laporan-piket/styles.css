@@ -1,0 +1,155 @@
+@page {
+  size: 210mm 330mm;
+  /* margin: 20px; Mengatur margin sempit (narrow) untuk semua sisi */
+  margin: 22mm 15mm 12mm 15mm;
+  /* Atas 22px, Kanan 15px, Bawah 12px, Kiri 15px */
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+
+  position: static;
+  /* Tambahkan padding bawah untuk ruang footer */
+  /* Jangan pakai min-height/padding-bottom kalau belum ada footer fixed */
+  /* min-height: 100%; */
+  /* padding-bottom: 100px; */
+}
+
+/* Wrapper utama: kasih ruang ekstra di atas sebagai “safe area” */
+.scale-wrap{
+  padding-top: 6mm;   /* dorong semua konten agak ke bawah */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+
+/* Style for tables with borders */
+.table-border {
+  border: 1px solid black;
+}
+
+.table-border th,
+.table-border td {
+  border: 1px solid black;
+}
+
+/* Style for tables without borders */
+.table-borderless {
+  border: none;
+}
+
+.table-borderless th,
+.table-borderless td {
+  border: none;
+}
+
+/* Override table-borderless for child tables */
+.table-borderless .table-border {
+  border: 1px solid black;
+}
+
+.table-borderless .table-border th,
+.table-borderless .table-border td {
+  border: 1px solid black;
+}
+
+.center-text {
+  text-align: center;
+}
+
+th,
+td {
+  padding: 5px;
+  text-align: center;
+}
+
+th {
+  background-color: #f2f2f2;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.signature {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.signature div {
+  text-align: center;
+  width: 40%;
+}
+
+.signature .line {
+  border-top: 1px solid black;
+  margin-top: 50px;
+}
+
+.kop-surat {
+  text-align: center;
+  margin: 0 0 12px 0; /* jangan terlalu besar */
+}
+
+.kop-surat img {
+  max-width: 100%;
+  height: auto;
+  
+  /* Kunci penting: jangan biarkan gambar “memaksa” tinggi berlebihan */
+  max-height: 45mm;   /* sesuaikan jika kop Anda lebih tinggi */
+  display: inline-block;
+}
+
+/* Footer Styling */
+/* footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 8px;
+  padding-bottom: 10px;
+} */
+
+/* =========================
+   ABSENSI (3 kolom sejajar)
+   ========================= */
+.columns {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  /* bantu stabilkan lebar kolom di Dompdf */
+}
+
+.columns td {
+  vertical-align: top;
+  /* KUNCI: semua kolom rata atas */
+}
+
+.col-43 {
+  width: 43%;
+  padding-right: 8px;
+}
+
+.col-14 {
+  width: 14%;
+  /* kolom rekap kecil */
+}
+
+.child-table {
+  width: 100%;
+  border-collapse: collapse;
+  page-break-inside: avoid;
+  /* cegah tabel terpotong di tengah halaman */
+}
+
