@@ -10,6 +10,7 @@
 .env.production
 error_log
 routes.txt
+CHANGELOG.local.md
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
