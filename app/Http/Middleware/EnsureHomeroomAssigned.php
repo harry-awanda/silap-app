@@ -5,8 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\AcademicTerm;
 use App\Models\HomeroomAssignment;
+use App\Support\ActiveTermCache;
 
 class EnsureHomeroomAssigned {
   public function handle(Request $request, Closure $next): Response {
@@ -18,13 +18,7 @@ class EnsureHomeroomAssigned {
       return $next($request);
     }
 
-    // ambil term aktif
-    // $activeTermId = AcademicTerm::query()->where('is_active', true)->value('id');
-    $activeTermId = cache()->remember(
-      'active_term_id',
-      now()->addMinutes(5),
-      fn() => AcademicTerm::where('is_active', true)->value('id')
-    );
+    $activeTermId = (int) ($request->attributes->get('activeTermId') ?: ActiveTermCache::activeTermId());
 
     // ✅ kalau belum ada term aktif, jangan 503
     if (!$activeTermId) {

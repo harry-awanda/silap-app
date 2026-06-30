@@ -14,7 +14,7 @@
 
   @php
     use App\Models\HomeroomAssignment;
-    use App\Models\AcademicTerm;
+    use App\Support\ActiveTermCache;
 
     $user = auth()->user();
 
@@ -38,19 +38,21 @@
     $hasRole = fn(string $role) => $user?->hasRole($role) ?? false;
     $hasAnyRole = fn(array|string $roles) => $user?->hasAnyRole($roles) ?? false;
 
-    // Ambil term aktif
-    $activeTermId = Cache::remember('active_term_id', 60, fn () =>
-      AcademicTerm::where('is_active', true)->value('id')
-    );
+    // Ambil term aktif dari middleware, fallback helper cache bila view dirender di luar middleware.
+    $activeTermId = request()->attributes->get('activeTermId') ?: ActiveTermCache::activeTermId();
 
     // Cek penugasan wali kelas di term aktif
     $guruId = optional(optional($user)->guru)->id;
 
     $waliKelasAdaKelas = $guruId && $activeTermId
-      ? HomeroomAssignment::where('guru_id', $guruId)
+      ? HomeroomAssignment::withoutActiveTerm()->where('guru_id', $guruId)
           ->where('term_id', $activeTermId)
           ->whereNull('ended_at')
           ->exists()
+      : false;
+
+    $waliKelasPunyaRiwayat = $guruId
+      ? HomeroomAssignment::withoutActiveTerm()->where('guru_id', $guruId)->exists()
       : false;
   @endphp
 
@@ -101,9 +103,9 @@
 
     {{-- Wali Kelas: include only when role wali_kelas & punya kelas pada term aktif --}}
     @includeWhen(
-      $user?->hasRole('wali_kelas') && $waliKelasAdaKelas,
+      $user?->hasRole('wali_kelas') && ($waliKelasAdaKelas || $waliKelasPunyaRiwayat),
       'layouts.partials.aside.wali_kelas',
-      ['is' => $is, 'rs' => $rs]
+      ['is' => $is, 'rs' => $rs, 'waliKelasAdaKelas' => $waliKelasAdaKelas]
       
     )
   </ul>

@@ -107,7 +107,7 @@
     <ul class="menu-sub">
       <li class="menu-item {{ $rs('admin.siswa.move.index') || ($rs('admin.siswa.promosi.*') && request()->route('mode') === 'promote') ? 'active' : '' }}">
         <a href="{{ route('admin.siswa.move.index') }}" class="menu-link">
-          <div class="text-truncate">Naik Kelas</div>
+          <div class="text-truncate">Lanjut / Naik Kelas</div>
         </a>
       </li>
       <li class="menu-item {{ $rs('admin.siswa.graduate.index') || ($rs('admin.siswa.promosi.*') && request()->route('mode') === 'graduate') ? 'active' : '' }}">

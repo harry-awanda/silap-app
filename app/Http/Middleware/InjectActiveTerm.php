@@ -5,14 +5,13 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
-use App\Models\AcademicTerm;
+use App\Support\ActiveTermCache;
 
 class InjectActiveTerm {
 
   public function handle(Request $request, Closure $next): Response {
-    $cacheKey = 'active_term.v1';
+    $activeTerm = ActiveTermCache::rememberActiveTerm();
     
     // $activeTerm = Cache::remember($cacheKey, 60, function () {
     //   // 1) Prioritas: is_active = 1, ambil yang paling “baru” berdasar start_date lalu id
@@ -31,14 +30,6 @@ class InjectActiveTerm {
     //   ->first();
     // });
 
-    $activeTerm = Cache::remember($cacheKey, 60, function () {
-      return AcademicTerm::query()
-        ->where('is_active', true)
-        ->orderByDesc('start_date')
-        ->orderByDesc('id')
-        ->first();
-    });
-    
     // Inject ke request
     $request->attributes->set('activeTerm', $activeTerm);
     $request->attributes->set('activeTermId', $activeTerm?->id);

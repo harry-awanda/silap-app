@@ -52,6 +52,8 @@ class SiswaPromotionController extends Controller {
     $toTerms = collect();
     $toTerm  = null;
     $targetClasses = collect();
+    $isSemesterContinuation = false;
+    $promoteKindLabel = 'Naik Kelas';
 
     if ($mode === 'promote') {
       $toTerms = $this->toTerms->get($fromTerm);
@@ -62,8 +64,12 @@ class SiswaPromotionController extends Controller {
       if (!in_array($kind, ['advance', 'repeat'], true)) $kind = 'advance';
 
       if ($toTerm) {
+        $isSemesterContinuation = $this->service->isSemesterContinuation($fromTerm, $toTerm);
+        if ($isSemesterContinuation) $kind = 'advance';
+
         $targetTingkat = $this->service->expectedTargetTingkatByKind($fromTerm, $toTerm, $current, $kind);
         $targetClasses = $this->targetClasses->get((int) $toTerm->id, $targetTingkat);
+        $promoteKindLabel = $this->service->promoteKindLabel($fromTerm, $toTerm, $kind);
 
         $qTargetClassId = (int) $request->query('target_classid', 0);
         if ($qTargetClassId && !$targetClasses->firstWhere('id', $qTargetClassId)) {
@@ -83,6 +89,8 @@ class SiswaPromotionController extends Controller {
       'toTermLabel'   => $toTerm ? $this->service->termLabel($toTerm) : null,
       'toTerms'       => $toTerms,
       'toTerm'        => $toTerm,
+      'isSemesterContinuation' => $isSemesterContinuation,
+      'promoteKindLabel'       => $promoteKindLabel,
     ]);
   }
 
@@ -118,6 +126,9 @@ class SiswaPromotionController extends Controller {
       'toTermLabel'   => $dto['toTerm'] ? $this->service->termLabel($dto['toTerm']) : null,
       'targetClass'   => $dto['targetClass'],
       'promoteKind'   => $kind,
+      'promoteKindLabel' => $dto['toTerm']
+        ? $this->service->promoteKindLabel($fromTerm, $dto['toTerm'], (string) ($dto['payload']['promote_kind'] ?? $kind))
+        : ($kind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas'),
     ]);
   }
 

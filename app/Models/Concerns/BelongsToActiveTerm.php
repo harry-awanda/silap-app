@@ -2,10 +2,10 @@
 
 namespace App\Models\Concerns;
 
+use App\Support\ActiveTermCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Cache;
 
 trait BelongsToActiveTerm {
   protected static string $termColumn = 'term_id';
@@ -32,28 +32,17 @@ trait BelongsToActiveTerm {
       if ($termId) {
         $model->setAttribute($col, $termId);
       }
-      // opsi: kalau mau ketat (fail fast), aktifkan ini:
     });
   }
 
   protected static function resolveActiveTermId(): ?int {
-    // 1) Request attribute (paling benar)
     if (App::has('request')) {
       $req = App::make('request');
       $id = $req->attributes->get('activeTermId');
       if ($id) return (int) $id;
     }
 
-    // 2) Cache fallback (pastikan setter cache kamu konsisten)
-    $termId = Cache::get('active_term_id.v1'); // ✅ lebih stabil simpan ID saja
-    if ($termId) return (int) $termId;
-
-    // fallback lama (jika masih menyimpan object/array)
-    $term = Cache::get('active_term.v1');
-    if (is_object($term) && isset($term->id)) return (int) $term->id;
-    if (is_array($term) && isset($term['id'])) return (int) $term['id'];
-
-    return null;
+    return ActiveTermCache::activeTermId();
   }
 
   public function scopeWithoutActiveTerm(Builder $query): Builder {

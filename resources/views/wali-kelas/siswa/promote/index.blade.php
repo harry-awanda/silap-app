@@ -7,23 +7,25 @@
   // keep state dari query agar UX enak saat reload
   $qToTermId    = request('to_term_id', $toTerm?->id);
   $qPromoteKind = request('promote_kind', 'advance'); // advance|repeat
+  if (!empty($isSemesterContinuation)) $qPromoteKind = 'advance';
   $qTargetClass = request('target_classid');          // keep selected class (opsional)
   $qClassroomId = request('classroom_id', $current?->id);
   $indexRoute   = 'admin.siswa.promosi.index';
   $previewRoute = 'admin.siswa.promosi.preview';
+  $processLabel = $mode === 'promote' ? ($promoteKindLabel ?? 'Naik Kelas') : 'Kelulusan';
 @endphp
 
 <h4 class="py-3 mb-4">
   <a href="{{ route('dashboard') }}">Dashboard</a> /
   <a href="{{ route('admin.siswa.move.index') }}">Promosi Siswa</a> /
-  <span class="text-muted fw-light">{{ $mode === 'promote' ? 'Naik Kelas' : 'Kelulusan' }}</span>
+  <span class="text-muted fw-light">{{ $processLabel }}</span>
 </h4>
 
 {{-- CARD: FILTER / DROPDOWN --}}
 <div class="card mb-3">
   <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div class="fw-semibold">
-      {{ $mode === 'promote' ? 'Pengaturan Promosi' : 'Pengaturan Kelulusan' }}
+      {{ $mode === 'promote' ? 'Pengaturan ' . $processLabel : 'Pengaturan Kelulusan' }}
     </div>
 
     <span class="badge bg-label-secondary">
@@ -58,13 +60,21 @@
           </select>
         </div>
 
-        <div class="col-12 col-md-2">
-          <label class="form-label">Jenis Promosi</label>
-          <select class="form-select form-select" name="promote_kind" id="promote_kind" required onchange="this.form.submit()">
-            <option value="advance" {{ $qPromoteKind === 'advance' ? 'selected' : '' }}>Naik Kelas</option>
-            <option value="repeat"  {{ $qPromoteKind === 'repeat'  ? 'selected' : '' }}>Tinggal Kelas</option>
-          </select>
-        </div>
+        @if(!empty($isSemesterContinuation))
+          <input type="hidden" name="promote_kind" id="promote_kind" value="advance">
+          <div class="col-12 col-md-2">
+            <label class="form-label">Jenis Proses</label>
+            <div class="form-control form-control-sm bg-light">Lanjut Semester</div>
+          </div>
+        @else
+          <div class="col-12 col-md-2">
+            <label class="form-label">Jenis Promosi</label>
+            <select class="form-select form-select" name="promote_kind" id="promote_kind" required onchange="this.form.submit()">
+              <option value="advance" {{ $qPromoteKind === 'advance' ? 'selected' : '' }}>Naik Kelas</option>
+              <option value="repeat"  {{ $qPromoteKind === 'repeat'  ? 'selected' : '' }}>Tinggal Kelas</option>
+            </select>
+          </div>
+        @endif
 
         <div class="col-12 col-md-3">
           <label class="form-label">Kelas Tujuan</label>
@@ -93,7 +103,7 @@
       @if($toTermLabel)
         <div class="mt-3 d-flex gap-2 flex-wrap">
           <span class="badge bg-label-primary">Term Tujuan: {{ $toTermLabel }}</span>
-          <span class="badge bg-label-warning">Jenis: {{ $qPromoteKind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas' }}</span>
+          <span class="badge bg-label-warning">Jenis: {{ $processLabel }}</span>
         </div>
       @endif
 

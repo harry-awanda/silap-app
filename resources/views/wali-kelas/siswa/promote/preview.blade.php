@@ -5,7 +5,7 @@
 
 @php
   $kind = $payload['promote_kind'] ?? 'advance';
-  $kindLabel = $kind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas';
+  $kindLabel = $promoteKindLabel ?? ($kind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas');
 
   // untuk tombol kembali agar state tidak reset
   $backParams = [
@@ -25,7 +25,7 @@
 <h4 class="py-3 mb-4">
   <a href="{{ route('dashboard') }}">Dashboard</a> /
   <a href="{{ route($indexRoute, [$mode] + $backParams) }}">
-    {{ $mode === 'promote' ? 'Naik Kelas' : 'Kelulusan' }}
+    {{ $mode === 'promote' ? $kindLabel : 'Kelulusan' }}
   </a> /
   <span class="text-muted fw-light">Preview</span>
 </h4>
@@ -92,6 +92,9 @@
         <label class="form-label">Ketik <b>PROMOTE</b> untuk konfirmasi</label>
       @else
         <input type="hidden" name="payload[angkatan]" value="{{ $payload['angkatan'] }}">
+        <div class="alert alert-warning mb-2">
+          Pastikan data siswa kelas 12 sudah disinkronkan ke Gradia sebelum diproses. Setelah kelulusan dikonfirmasi, data siswa dan data terkait di SILAP akan dihapus.
+        </div>
         <label class="form-label">Ketik <b>LULUS</b> untuk konfirmasi</label>
       @endif
 

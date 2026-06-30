@@ -9,6 +9,7 @@ use App\Http\Controllers\WaliKelas\{
   SiswaImportController,
   RiwayatPelanggaranController,
   RiwayatAbsensiController,
+  SiswaHistoryController,
   MorningActivityAttendanceController,
   RekapController,
   AbsenceController,
@@ -26,6 +27,13 @@ Route::prefix('wali')
     Route::get('/dashboard', [DashboardController::class, 'index'])
       ->middleware(['ensure.homeroom'])   // wajib wali aktif term berjalan
       ->name('wali.dashboard.index');     // pakai namespace nama 'wali.' agar jelas
+
+    Route::prefix('riwayat-siswa')->name('wali.siswa-history.')->group(function () {
+      Route::get('/', [SiswaHistoryController::class, 'index'])->name('index');
+      Route::get('{assignment}/{siswa}', [SiswaHistoryController::class, 'show'])
+        ->whereNumber(['assignment', 'siswa'])
+        ->name('show');
+    });
 
     // ===========================================================
     // RUTE-RUTE KRITIKAL (wajib wali aktif + injeksi konteks wali)

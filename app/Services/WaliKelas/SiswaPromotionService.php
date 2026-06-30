@@ -33,6 +33,21 @@ class SiswaPromotionService {
         && (int) $a->year_end   === (int) $b->year_end;
   }
 
+  public function isSemesterContinuation(AcademicTerm $from, ?AcademicTerm $to): bool {
+    return $to
+      && $this->isSameAcademicYear($from, $to)
+      && strtolower((string) $from->semester) === 'ganjil'
+      && strtolower((string) $to->semester) === 'genap';
+  }
+
+  public function promoteKindLabel(AcademicTerm $from, ?AcademicTerm $to, string $kind): string {
+    if ($this->isSemesterContinuation($from, $to)) {
+      return 'Lanjut Semester';
+    }
+
+    return $kind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas';
+  }
+
   /**
    * Hitung target tingkat berdasarkan jenis promosi
    * - advance : naik kelas
@@ -99,7 +114,9 @@ class SiswaPromotionService {
         'Kelas tujuan tidak sesuai term tujuan.'
       );
 
-      $kind = $promoteKind ?: 'advance';
+      $kind = $this->isSemesterContinuation($fromTerm, $toTerm)
+        ? 'advance'
+        : ($promoteKind ?: 'advance');
 
       $expectedTingkat = $this->expectedTargetTingkatByKind(
         $fromTerm,
@@ -244,6 +261,11 @@ class SiswaPromotionService {
         ]
       );
     }
+
+    Siswa::whereIn('id', $ids)->update([
+      'classroom_id' => $toClassId,
+      'updated_at'   => now(),
+    ]);
   }
 
   /* =====================================================

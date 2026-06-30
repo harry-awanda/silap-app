@@ -3,13 +3,23 @@
 </li>
 
 {{-- Siswa Binaan --}}
+@if($waliKelasAdaKelas ?? false)
 <li class="menu-item {{ $rs('siswa.*') ? 'active' : '' }}">
   <a href="{{ route('siswa.index') }}" class="menu-link">
     <i class="menu-icon tf-icons bx bx-user"></i>
     <div class="text-truncate">Siswa Binaan</div>
   </a>
 </li>
+@endif
 
+<li class="menu-item {{ $rs('wali.siswa-history.*') ? 'active' : '' }}">
+  <a href="{{ route('wali.siswa-history.index') }}" class="menu-link">
+    <i class="menu-icon tf-icons bx bx-history"></i>
+    <div class="text-truncate">Riwayat Siswa</div>
+  </a>
+</li>
+
+@if($waliKelasAdaKelas ?? false)
 {{-- Absensi Siswa --}}
 <li class="menu-item {{ $rs('absence.*') ? 'active open' : '' }}">
   <a href="{{ route('absence.index') }}" class="menu-link">
@@ -49,3 +59,4 @@
     </li>
   </ul>
 </li>
+@endif

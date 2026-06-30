@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use Illuminate\Http\Request;
-use App\Models\AcademicTerm;
 
 class ActiveTerm {
   public static function id(Request $request): int {
@@ -17,9 +16,7 @@ class ActiveTerm {
 
     // 3) Fallback: term yang ditandai aktif di DB (lintas role)
     if (!$id) {
-      $id = AcademicTerm::where('is_active', 1)
-        ->orderByDesc('id')
-        ->value('id');
+      $id = ActiveTermCache::activeTermId();
     }
 
     abort_unless($id, 422, 'Tahun ajaran belum diaktifkan.');

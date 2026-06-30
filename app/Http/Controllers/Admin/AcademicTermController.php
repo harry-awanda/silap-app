@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAcademicTermRequest;
 use App\Http\Requests\UpdateAcademicTermRequest;
 use App\Models\AcademicTerm;
+use App\Support\ActiveTermCache;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class AcademicTermController extends Controller {
@@ -42,8 +42,7 @@ class AcademicTermController extends Controller {
     // Buat term baru (default is_active=false)
     $term = AcademicTerm::create($data);
     
-    // Clear cache agar middleware membaca state terbaru kalau fallback ke term terbaru
-    Cache::forget('active_term.v1');
+    ActiveTermCache::forget();
     
     return redirect()
     ->route('admin.terms.index')
@@ -68,7 +67,7 @@ class AcademicTermController extends Controller {
     
     // Jika yang diupdate adalah term aktif, kita clear cache supaya label/header ikut berubah
     if ($term->is_active) {
-      Cache::forget('active_term.v1');
+      ActiveTermCache::forget();
     }
     
     return redirect()
@@ -86,7 +85,7 @@ class AcademicTermController extends Controller {
     }
     
     $term->delete();
-    Cache::forget('active_term.v1');
+    ActiveTermCache::forget();
     
     return redirect()
     ->route('admin.terms.index')
@@ -105,7 +104,7 @@ class AcademicTermController extends Controller {
       $term->update(['is_active' => true]);
     });
     
-    Cache::forget('active_term.v1');
+    ActiveTermCache::forget();
     
     return redirect()
     ->route('admin.terms.index')

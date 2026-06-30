@@ -4,9 +4,7 @@ namespace App\Support;
 
 use App\Models\Guru;
 use App\Models\HomeroomAssignment;
-use App\Models\AcademicTerm;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class HomeroomContext {
@@ -31,17 +29,7 @@ class HomeroomContext {
       return (int) $id;
     }
 
-    // 3) cache fallback (optional, mengikuti trait BelongsToActiveTerm)
-    $cached = Cache::get('active_term.v1');
-    if (is_object($cached) && isset($cached->id)) return (int) $cached->id;
-    if (is_array($cached) && isset($cached['id'])) return (int) $cached['id'];
-
-    // 4) DB fallback
-    $id = AcademicTerm::query()->where('is_active', true)->value('id');
-    if (!$id) {
-      return null; // jangan abort
-    }
-    return (int) $id;
+    return ActiveTermCache::activeTermId();
   }
 
   /**
