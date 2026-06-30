@@ -15,7 +15,7 @@
   @if(session($key))
     <div id="toast-{{ $key }}" class="bs-toast toast fade {{ $toast['bg'] }} position-fixed bottom-0 end-0 m-3 text-white shadow" 
       role="alert" aria-live="assertive" aria-atomic="true">
-      <div class="toast-header {{ $toast['bg'] }} text-white">
+      <div class="toast-header">
         <i class="{{ $toast['icon'] }} me-2"></i>
         <strong class="me-auto">{{ $toast['title'] }}</strong>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>

@@ -80,7 +80,7 @@
     @endif
 
     {{-- Admin --}}
-    @if ($hasRole('admin'))
+    @if ($hasAnyRole(['superadmin','admin']))
       @include('layouts.partials.aside.admin', ['is' => $is, 'rs' => $rs])
     @endif
 

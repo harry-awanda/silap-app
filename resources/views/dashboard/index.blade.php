@@ -29,7 +29,7 @@
   <span class="text-muted fw-light">{{ $title ?? 'Ringkasan' }}</span>
 </h4>
 
-@if(!$u->hasAnyRole(['admin','guru','kesiswaan','guru_piket','guru_bk','siswa']))
+@if(!$u->hasAnyRole(['superadmin','admin','guru','kesiswaan','guru_piket','guru_bk','siswa']))
   <div class="alert alert-danger">Anda tidak memiliki akses ke Dashboard ini.</div>
 @endif
 

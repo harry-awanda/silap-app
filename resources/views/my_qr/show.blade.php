@@ -5,7 +5,7 @@
 
 <h4 class="py-3 mb-4">
   <a href="{{ route('dashboard') }}">Dashboard</a> /
-  <span class="text-muted fw-light">My QR (As)</span>
+  <span class="text-muted fw-light">My QR (Assetly)</span>
 </h4>
 
 <div class="row justify-content-center">
@@ -65,6 +65,7 @@
             <div class="small text-muted">
               Jika QR sudah tidak bisa dipakai (expired), klik <strong>Regenerate</strong>.
             </div>
+
           </div>
 
         </div>

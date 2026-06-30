@@ -7,9 +7,12 @@ use Illuminate\Http\Request;
 
 class VerifyAssetlyKey {
   public function handle(Request $request, Closure $next) {
-    $key = $request->header('X-ASSETLY-KEY');
+    $incomingKey = trim((string) $request->header('X-ASSETLY-KEY'));
 
-    if (!$key || $key !== config('services.assetly.key')) {
+    // ✅ ini yang benar untuk SILAP
+    $expectedKey = trim((string) config('services.assetly.key'));
+
+    if (!$incomingKey || !$expectedKey || !hash_equals($expectedKey, $incomingKey)) {
       return response()->json([
         'ok' => false,
         'error' => 'UNAUTHORIZED_APP',

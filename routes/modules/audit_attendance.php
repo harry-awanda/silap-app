@@ -12,7 +12,7 @@ use App\Http\Controllers\AuditAttendanceController;
 */
 
 Route::prefix('audit/attendance')->name('audit.attendance.')->group(function () {
-  Route::middleware('role:admin|kesiswaan|guru_piket|guru_bk')->group(function () {
+  Route::middleware('role:admin|kesiswaan|guru|guru_piket|guru_bk')->group(function () {
     // Halaman utama audit presensi
     Route::get('/', [AuditAttendanceController::class, 'index'])->name('index');
     // Endpoint DataTables (tab Detail Aktivitas)
@@ -21,5 +21,11 @@ Route::prefix('audit/attendance')->name('audit.attendance.')->group(function () 
     Route::get('/export', [AuditAttendanceController::class, 'export'])->name('export');
     // Leaderboard siswa terlambat
     Route::get('/late', [AuditAttendanceController::class, 'lateLeaderboard'])->name('late');
+  });
+
+  Route::middleware('role:admin')->group(function () {
+    Route::delete('/purge-present-history/{days}', [AuditAttendanceController::class, 'purgePresentHistory'])
+      ->whereIn('days', ['30', '60', '90'])
+      ->name('purge-present-history');
   });
 });

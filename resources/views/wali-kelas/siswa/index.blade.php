@@ -6,21 +6,6 @@
 @php
   $homeroom = request()->attributes->get('homeroom');
   $current  = $homeroom?->classroom;
-
-  // term aktif (kalau InjectActiveTerm ada)
-  $activeTerm = request()->attributes->get('activeTerm') ?? app('activeTerm') ?? null;
-  $isGenap = $activeTerm && strtolower($activeTerm->semester) === 'genap';
-
-  $termLabel = $activeTerm
-    ? ($activeTerm->year_start.'/'.$activeTerm->year_end.' - '.ucfirst($activeTerm->semester))
-    : '-';
-
-  // graduation hanya kelas 12 dan semester genap
-  $isGraduation = $current && (int)$current->tingkat === 12 && $isGenap;
-
-  $promoteLabel = $isGraduation ? 'Kelulusan Siswa' : 'Promote';
-  $promoteMode  = $isGraduation ? 'graduate' : 'promote';
-
   // view tersimpan dari controller
   $currentView = $view ?? 'list';
 
@@ -58,10 +43,6 @@
 
       <a href="{{ route('siswa.import') }}" class="btn btn-outline-primary">
         <i class="bx bx-upload me-1"></i> Import
-      </a>
-
-      <a href="{{ route('siswa.promosi.index', $promoteMode) }}" class="btn btn-warning">
-        <i class="bx bx-transfer me-1"></i> {{ $promoteLabel }}
       </a>
     </div>
   </div>

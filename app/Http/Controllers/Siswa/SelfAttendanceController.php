@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\{Attendance, Siswa};
 use App\Services\GeoFenceService;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Carbon\Carbon;
 
 class SelfAttendanceController extends Controller {
 
@@ -39,7 +39,7 @@ class SelfAttendanceController extends Controller {
       $reason
     );
 
-    $key = 'att:precheck:' . $request->user()->id;
+    $key = 'att:precheck:' . ($request->user()->id);
     Cache::put($key, [
       'lat'      => (float) $data['latitude'],
       'lng'      => (float) $data['longitude'],
@@ -123,7 +123,7 @@ class SelfAttendanceController extends Controller {
         'longitude'    => $data['longitude'],
         'accuracy_m'   => $data['accuracy'] ?? null,
         'source'       => 'self',
-        'notes'        => null,
+        'notes'        => 'Presensi mandiri',
         'user_agent'   => substr(($data['user_agent'] ?? $request->userAgent() ?? ''), 0, 255),
       ]);
 

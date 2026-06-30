@@ -58,7 +58,7 @@ class DashboardController extends Controller {
     }
 
     // 2) Batasi akses dashboard ini hanya untuk role terkait
-    if (!$user->hasAnyRole(['admin', 'guru', 'kesiswaan', 'guru_piket', 'guru_bk', 'siswa'])) {
+    if (!$user->hasAnyRole(['superadmin', 'admin', 'guru', 'kesiswaan', 'guru_piket', 'guru_bk', 'siswa'])) {
       abort(403, 'Anda tidak memiliki akses ke Dashboard ini.');
     }
 
@@ -77,7 +77,7 @@ class DashboardController extends Controller {
     $termId = $this->activeTermId($r);
     
     if (!$termId) {
-      if ($r->user()->hasRole('admin')) {
+      if ($r->user()->hasAnyRole(['superadmin', 'admin'])) {
         return redirect()
           ->route('admin.terms.index')
           ->with('warning', 'Silakan set Tahun Ajaran / Semester aktif.');

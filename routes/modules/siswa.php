@@ -4,6 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Siswa\SelfAttendanceController;
 
 Route::middleware(['protected', 'role:siswa'])->group(function () {
+
+  // =========================
+  // PRESENSI MANDIRI
+  // =========================
   Route::get('presensi', [SelfAttendanceController::class, 'form'])
     ->name('presensi.form');
 

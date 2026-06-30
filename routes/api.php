@@ -21,7 +21,11 @@ use App\Http\Controllers\Api\AssetlyQrController;
 |
 */
 
-Route::post('/assetly/qr/resolve', [AssetlyQrController::class, 'resolve'])
+Route::get('/check', function () {
+  return response()->json(['message' => 'SILAP API aktif']);
+});
+
+Route::post('assetly/qr/resolve', [AssetlyQrController::class, 'resolve'])
   ->middleware('assetly.key');
   
 // ======================================================
