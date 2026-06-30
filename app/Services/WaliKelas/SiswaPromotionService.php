@@ -4,7 +4,7 @@ namespace App\Services\WaliKelas;
 
 use Illuminate\Support\Facades\DB;
 
-use App\Models\{Siswa, Alumni, User, Classroom, AcademicTerm};
+use App\Models\{Siswa, User, Classroom, AcademicTerm};
 use App\Support\HomeroomContext;
 use App\Queries\WaliKelas\SiswaPromotion\VerifiedStudentsQuery;
 
@@ -204,7 +204,6 @@ class SiswaPromotionService {
 
       $this->commitGraduate(
         ids: $ids,
-        angkatan: (string) $payload['angkatan'],
       );
     });
   }
@@ -251,26 +250,16 @@ class SiswaPromotionService {
    * Internal: Graduate
    * ===================================================== */
 
-  private function commitGraduate(array $ids, string $angkatan): void {
+  private function commitGraduate(array $ids): void {
     $students = Siswa::whereIn('id', $ids)->get();
 
     foreach ($students as $s) {
-      Alumni::create([
-        'id'            => $s->id,
-        'nis'           => $s->nis,
-        'nama_lengkap'  => $s->nama_lengkap,
-        'jenis_kelamin' => $s->jenis_kelamin,
-        'angkatan'      => $angkatan,
-        'graduated_at'  => now(),
-      ]);
-
       if ($s->user_id) {
         User::where('id', $s->user_id)->update(['disabled_at' => now()]);
       }
-    }
 
-    DB::table('term_classroom_siswa')->whereIn('siswa_id', $ids)->delete();
-    Siswa::whereIn('id', $ids)->delete();
+      $s->delete();
+    }
   }
 
   /* =====================================================

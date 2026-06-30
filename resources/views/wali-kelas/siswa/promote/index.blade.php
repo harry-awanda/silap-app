@@ -8,11 +8,14 @@
   $qToTermId    = request('to_term_id', $toTerm?->id);
   $qPromoteKind = request('promote_kind', 'advance'); // advance|repeat
   $qTargetClass = request('target_classid');          // keep selected class (opsional)
+  $qClassroomId = request('classroom_id', $current?->id);
+  $indexRoute   = 'admin.siswa.promosi.index';
+  $previewRoute = 'admin.siswa.promosi.preview';
 @endphp
 
 <h4 class="py-3 mb-4">
   <a href="{{ route('dashboard') }}">Dashboard</a> /
-  <a href="{{ route('siswa.index') }}">Siswa Binaan</a> /
+  <a href="{{ route('admin.siswa.move.index') }}">Promosi Siswa</a> /
   <span class="text-muted fw-light">{{ $mode === 'promote' ? 'Naik Kelas' : 'Kelulusan' }}</span>
 </h4>
 
@@ -31,8 +34,19 @@
   <div class="card-body">
     @if($mode === 'promote')
       {{-- SATU FORM GET agar konsisten + keep state --}}
-      <form class="row g-2 align-items-end" method="GET" action="{{ route('siswa.promosi.index', 'promote') }}">
-        <div class="col-12 col-md-4">
+      <form class="row g-2 align-items-end" method="GET" action="{{ route($indexRoute, 'promote') }}">
+        <div class="col-12 col-md-3">
+          <label class="form-label">Kelas Sumber</label>
+          <select class="form-select form-select" name="classroom_id" id="classroom_id" required onchange="this.form.submit()">
+            @foreach(($classes ?? collect([$current])) as $c)
+              <option value="{{ $c->id }}" {{ (string)$qClassroomId === (string)$c->id ? 'selected' : '' }}>
+                {{ $c->tingkat }} - {{ $c->nama_kelas }}
+              </option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="col-12 col-md-3">
           <label class="form-label">Term Tujuan</label>
           <select class="form-select form-select" name="to_term_id" id="to_term_id" required onchange="this.form.submit()">
             <option disabled {{ !$qToTermId ? 'selected' : '' }}>— Pilih —</option>
@@ -44,7 +58,7 @@
           </select>
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-2">
           <label class="form-label">Jenis Promosi</label>
           <select class="form-select form-select" name="promote_kind" id="promote_kind" required onchange="this.form.submit()">
             <option value="advance" {{ $qPromoteKind === 'advance' ? 'selected' : '' }}>Naik Kelas</option>
@@ -52,7 +66,7 @@
           </select>
         </div>
 
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-md-3">
           <label class="form-label">Kelas Tujuan</label>
           <select class="form-select form-select" name="target_classid" id="target_classid" required onchange="this.form.submit()">
             <option disabled {{ empty($targetClasses) ? 'selected' : '' }}>— Pilih —</option>
@@ -85,7 +99,18 @@
 
     @else
       {{-- MODE GRADUATE --}}
-      <div class="row g-2 align-items-end">
+      <form class="row g-2 align-items-end" method="GET" action="{{ route($indexRoute, 'graduate') }}">
+        <div class="col-12 col-md-4">
+          <label class="form-label">Kelas Sumber</label>
+          <select class="form-select form-select" name="classroom_id" id="classroom_id" required onchange="this.form.submit()">
+            @foreach(($classes ?? collect([$current])) as $c)
+              <option value="{{ $c->id }}" {{ (string)$qClassroomId === (string)$c->id ? 'selected' : '' }}>
+                {{ $c->tingkat }} - {{ $c->nama_kelas }}
+              </option>
+            @endforeach
+          </select>
+        </div>
+
         <div class="col-12 col-md-4">
           <label class="form-label">Angkatan</label>
           <input
@@ -99,7 +124,7 @@
           >
           <small class="text-muted d-block mt-1">Contoh: 2025</small>
         </div>
-      </div>
+      </form>
     @endif
   </div>
 </div>
@@ -119,10 +144,11 @@
   </div>
 
   <div class="card-body">
-    <form id="form-next" action="{{ route('siswa.promosi.preview', $mode) }}" method="POST">
+    <form id="form-next" action="{{ route($previewRoute, $mode) }}" method="POST">
       @csrf
 
       {{-- hidden inputs diisi via JS sebelum submit --}}
+      <input type="hidden" name="classroom_id" id="h_classroom_id" value="{{ $current?->id }}">
       <input type="hidden" name="to_term_id" id="h_to_term_id">
       <input type="hidden" name="promote_kind" id="h_promote_kind">
       <input type="hidden" name="target_classid" id="h_target_classid">

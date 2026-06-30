@@ -7,7 +7,6 @@ use App\Http\Controllers\WaliKelas\{
   DashboardController,
   SiswaController as WaliKelasSiswaController,
   SiswaImportController,
-  SiswaPromotionController,
   RiwayatPelanggaranController,
   RiwayatAbsensiController,
   MorningActivityAttendanceController,
@@ -40,14 +39,6 @@ Route::prefix('wali')
           // Template import
           Route::get('template-import', [SiswaImportController::class, 'downloadTemplate'])->name('template.download');
           
-          // Quick access dari sidebar
-          Route::get('pindah-kelas', fn() => redirect()->route('siswa.promosi.index', 'promote'))->name('move.index');
-          Route::get('kelulusan', fn() => redirect()->route('siswa.promosi.index', 'graduate'))->name('graduate.index');
-          // Halaman terpadu
-          Route::get('promosi/{mode}',          [SiswaPromotionController::class,'index'])->name('promosi.index');     // promote|graduate
-          Route::post('promosi/{mode}/preview', [SiswaPromotionController::class,'preview'])->name('promosi.preview');
-          Route::post('promosi/{mode}/commit',  [SiswaPromotionController::class,'commit'])->name('promosi.commit');
-          
         });
       // Resource siswa (wali kelas)
       Route::resource('siswa', WaliKelasSiswaController::class)->whereNumber('siswa');
@@ -58,7 +49,8 @@ Route::prefix('wali')
         Route::get('riwayat-pelanggaran/more',  [RiwayatPelanggaranController::class, 'more'])->name('pelanggaran.more');
         Route::get('riwayat-pelanggaran/export',[RiwayatPelanggaranController::class, 'export'])->name('pelanggaran.export');
 
-        Route::get('riwayat-absensi',       [RiwayatAbsensiController::class, 'index'])->name('absensi.index');
+        Route::get('riwayat-absensi',        [RiwayatAbsensiController::class, 'index'])->name('absensi.index');
+        Route::get('riwayat-absensi/export', [RiwayatAbsensiController::class, 'export'])->name('absensi.export');
 
       });
 

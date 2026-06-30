@@ -67,9 +67,9 @@ class RoleController extends Controller {
   }
 
   public function destroy(Role $role) {
-  // Lindungi role 'admin'
-  if ($role->name === 'admin') {
-    return back()->with('warning','Role admin tidak boleh dihapus.');
+  // Lindungi role kunci sistem
+  if (in_array($role->name, ['superadmin', 'admin'], true)) {
+    return back()->with('warning','Role superadmin/admin tidak boleh dihapus.');
   }
 
   // Cegah hapus jika masih dipakai user

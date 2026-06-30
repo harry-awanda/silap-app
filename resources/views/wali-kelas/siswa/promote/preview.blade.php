@@ -8,19 +8,23 @@
   $kindLabel = $kind === 'repeat' ? 'Tinggal Kelas' : 'Naik Kelas';
 
   // untuk tombol kembali agar state tidak reset
-  $backParams = [];
+  $backParams = [
+    'classroom_id' => $payload['classroom_id'] ?? null,
+  ];
   if ($mode === 'promote') {
-    $backParams = [
+    $backParams += [
       'to_term_id'     => $payload['to_term_id'] ?? null,
       'promote_kind'   => $kind,
       'target_classid' => $payload['target_classid'] ?? null,
     ];
   }
+  $indexRoute = 'admin.siswa.promosi.index';
+  $commitRoute = 'admin.siswa.promosi.commit';
 @endphp
 
 <h4 class="py-3 mb-4">
   <a href="{{ route('dashboard') }}">Dashboard</a> /
-  <a href="{{ route('siswa.promosi.index', [$mode] + $backParams) }}">
+  <a href="{{ route($indexRoute, [$mode] + $backParams) }}">
     {{ $mode === 'promote' ? 'Naik Kelas' : 'Kelulusan' }}
   </a> /
   <span class="text-muted fw-light">Preview</span>
@@ -71,8 +75,10 @@
       </table>
     </div>
 
-    <form action="{{ route('siswa.promosi.commit',$mode) }}" method="POST" class="d-flex flex-column gap-2">
+    <form action="{{ route($commitRoute, $mode) }}" method="POST" class="d-flex flex-column gap-2">
       @csrf
+
+      <input type="hidden" name="payload[classroom_id]" value="{{ $payload['classroom_id'] }}">
 
       @foreach($payload['siswa_ids'] as $id)
         <input type="hidden" name="payload[siswa_ids][]" value="{{ $id }}">
@@ -92,7 +98,7 @@
       <input type="text" name="confirm" class="form-control" required>
 
       <div class="d-flex justify-content-end gap-2">
-        <a href="{{ route('siswa.promosi.index', [$mode] + $backParams) }}" class="btn btn-label-secondary">
+        <a href="{{ route($indexRoute, [$mode] + $backParams) }}" class="btn btn-label-secondary">
           Kembali
         </a>
         <button class="btn btn-success">Proses</button>

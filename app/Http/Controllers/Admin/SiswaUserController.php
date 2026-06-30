@@ -102,17 +102,17 @@ class SiswaUserController extends Controller {
     ->rawColumns(['password_changed_at','online','actions'])
     ->make(true);
   }
-
+  
   public function export(Request $request) {
-  $classroomId  = $request->filled('classroom_id') ? (int) $request->classroom_id : null;
-  $neverChanged = $request->boolean('never_changed');
+    $classroomId  = $request->filled('classroom_id') ? (int) $request->classroom_id : null;
+    $neverChanged = $request->boolean('never_changed');
 
-  $file = 'akun-siswa'
-    . ($classroomId ? '-kelas-'.$classroomId : '')
-    . ($neverChanged ? '-pwd-belum-diganti' : '')
-    . '-' . now()->format('Ymd_His')
-    . '.xlsx';
+    $file = 'akun-siswa'
+      . ($classroomId ? '-kelas-'.$classroomId : '')
+      . ($neverChanged ? '-pwd-belum-diganti' : '')
+      . '-' . now()->format('Ymd_His')
+      . '.xlsx';
 
-    return Excel::download(new SiswaUserExport($classroomId, $neverChanged), $file);
-  }
+      return Excel::download(new SiswaUserExport($classroomId, $neverChanged), $file);
+    }
 }

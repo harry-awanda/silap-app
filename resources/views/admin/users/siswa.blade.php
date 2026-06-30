@@ -41,13 +41,6 @@
 
     {{-- Baris 2: Reset --}}
     <div class="row mt-3">
-      <div class="col-12">
-        <button id="btn-reset-filter" class="btn btn-outline-secondary btn-sm">
-          <i class="bx bx-reset me-1"></i> Reset Filter
-        </button>
-      </div>
-    </div>
-    <div class="row mt-3">
       <div class="col-12 d-flex gap-2">
         <button id="btn-reset-filter" class="btn btn-outline-secondary btn-sm">
           <i class="bx bx-reset me-1"></i> Reset Filter
@@ -57,7 +50,7 @@
           <i class="bx bx-download me-1"></i> Export Excel
         </a>
       </div>
-    </div>
+    </div>    
 
   </div>
 </div>

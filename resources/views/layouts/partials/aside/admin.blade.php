@@ -21,9 +21,11 @@
   );
 
   $pelanggaranSiswaOpen = $rs('pelanggaranSiswa.*'); // non-admin prefix (tetap dipertahankan)
+  $promosiOpen = $rs('admin.siswa.promosi.*', 'admin.siswa.move.index', 'admin.siswa.graduate.index');
 @endphp
 
-@role('admin')
+@hasanyrole('admin|superadmin')
+  @role('admin')
   {{-- LAPORAN --}}
   <li class="menu-item {{ $laporanOpen ? 'active open' : '' }}">
     <a href="javascript:void(0)" class="menu-link menu-toggle">
@@ -38,7 +40,9 @@
       </li>
     </ul>
   </li>
+  @endrole
 
+  @role('superadmin')
   {{-- DATA INDUK --}}
   <li class="menu-item {{ $adminDataOpen ? 'active open' : '' }}">
     <a href="javascript:void(0)" class="menu-link menu-toggle">
@@ -83,13 +87,35 @@
       </li>
     </ul>
   </li>
+  @endrole
 
+  @role('admin')
   {{-- PELANGGARAN SISWA (non-admin prefix, tetap ditampilkan jika route ada dan memang admin perlu akses) --}}
   <li class="menu-item {{ $pelanggaranSiswaOpen ? 'active' : '' }}">
     <a href="{{ route('pelanggaranSiswa.index') }}" class="menu-link">
       <i class="menu-icon tf-icons bx bx-error-circle"></i>
       <div class="text-truncate">Pelanggaran Siswa</div>
     </a>
+  </li>
+
+  {{-- PROMOSI / KELULUSAN --}}
+  <li class="menu-item {{ $promosiOpen ? 'active open' : '' }}">
+    <a href="javascript:void(0)" class="menu-link menu-toggle">
+      <i class="menu-icon tf-icons bx bx-transfer"></i>
+      <div class="text-truncate">Promosi Siswa</div>
+    </a>
+    <ul class="menu-sub">
+      <li class="menu-item {{ $rs('admin.siswa.move.index') || ($rs('admin.siswa.promosi.*') && request()->route('mode') === 'promote') ? 'active' : '' }}">
+        <a href="{{ route('admin.siswa.move.index') }}" class="menu-link">
+          <div class="text-truncate">Naik Kelas</div>
+        </a>
+      </li>
+      <li class="menu-item {{ $rs('admin.siswa.graduate.index') || ($rs('admin.siswa.promosi.*') && request()->route('mode') === 'graduate') ? 'active' : '' }}">
+        <a href="{{ route('admin.siswa.graduate.index') }}" class="menu-link">
+          <div class="text-truncate">Kelulusan</div>
+        </a>
+      </li>
+    </ul>
   </li>
 
   {{-- DATA PENGGUNA --}}
@@ -127,7 +153,9 @@
       <div class="text-truncate">Jadwal Piket</div>
     </a>
   </li>
+  @endrole
 
+  @role('superadmin')
   {{-- PROFIL SEKOLAH --}}
   <li class="menu-item {{ $rs('admin.profil.*') ? 'active' : '' }}">
     <a href="{{ route('admin.profil.edit') }}" class="menu-link">
@@ -143,4 +171,5 @@
       <div class="text-truncate">Uploads</div>
     </a>
   </li>
-@endrole
+  @endrole
+@endhasanyrole

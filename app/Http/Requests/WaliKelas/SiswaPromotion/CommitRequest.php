@@ -10,7 +10,8 @@ class CommitRequest extends FormRequest {
   private const CONFIRM_GRADUATE = 'LULUS';
 
   public function authorize(): bool {
-    return auth()->check() && (bool) $this->attributes->get('homeroom');
+    return auth()->check()
+      && (auth()->user()->hasRole('admin') || (bool) $this->attributes->get('homeroom'));
   }
 
   protected function prepareForValidation(): void {
@@ -43,6 +44,7 @@ class CommitRequest extends FormRequest {
     $base = [
       'mode'              => ['required', Rule::in(['promote', 'graduate'])],
       'payload'           => ['required', 'array'],
+      'payload.classroom_id' => ['required', 'integer', 'exists:classrooms,id'],
       'payload.siswa_ids' => ['required', 'array', 'min:1'],
       'payload.siswa_ids.*' => ['integer', 'distinct'],
       'confirm'           => ['required', 'string'],

@@ -21,7 +21,7 @@ class UserController extends Controller {
     ->orderBy('name');
 
     // Jika ingin hanya “user staf” (bukan siswa), batasi di sini:
-    $usersQuery->whereHas('roles', fn($q) => $q->whereIn('name', ['admin','guru','kesiswaan','guru_bk','guru_piket']));
+    $usersQuery->whereHas('roles', fn($q) => $q->whereIn('name', ['superadmin','admin','guru','kesiswaan','guru_bk','guru_piket']));
 
     if ($filterRole) {
       $usersQuery->whereHas('roles', fn($q) => $q->where('name', $filterRole));
@@ -93,12 +93,18 @@ class UserController extends Controller {
     }
     $user->update($payload);
 
-    // Proteksi: admin tidak boleh mencabut role admin dari dirinya sendiri
+    // Proteksi: admin/superadmin tidak boleh mencabut role kunci dari dirinya sendiri
     if (auth()->id() === $user->id) {
       $hadAdmin = $user->hasRole('admin');
       $incomingHasAdmin = in_array('admin', $validated['roles'], true);
       if ($hadAdmin && !$incomingHasAdmin) {
         return back()->with('warning','Anda tidak boleh menghapus role admin dari akun Anda sendiri.')->withInput();
+      }
+
+      $hadSuperadmin = $user->hasRole('superadmin');
+      $incomingHasSuperadmin = in_array('superadmin', $validated['roles'], true);
+      if ($hadSuperadmin && !$incomingHasSuperadmin) {
+        return back()->with('warning','Anda tidak boleh menghapus role superadmin dari akun Anda sendiri.')->withInput();
       }
     }
 

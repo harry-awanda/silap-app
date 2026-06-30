@@ -8,9 +8,8 @@ use Illuminate\Validation\Rule;
 class PreviewRequest extends FormRequest {
   public function authorize(): bool
   {
-    // Minimal: harus sudah auth + punya homeroom aktif (di-inject middleware)
-    // (tetap ada safety check di service untuk siswa binaan)
-    return auth()->check() && (bool) $this->attributes->get('homeroom');
+    return auth()->check()
+      && (auth()->user()->hasRole('admin') || (bool) $this->attributes->get('homeroom'));
   }
 
   protected function prepareForValidation(): void {
@@ -34,6 +33,7 @@ class PreviewRequest extends FormRequest {
 
     $base = [
       'mode'       => ['required', Rule::in(['promote', 'graduate'])],
+      'classroom_id' => ['required', 'integer', 'exists:classrooms,id'],
       'siswa_ids'  => ['required', 'array', 'min:1'],
       'siswa_ids.*'=> ['integer', 'distinct'],
     ];
