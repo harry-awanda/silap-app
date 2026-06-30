@@ -15,8 +15,8 @@ return [
 
     // Override the public path if needed
     // Arahkan ke document root subdomain kamu
-    'public_path' => null,  // Override the public path if needed
-    // 'public_path' => base_path('../public_html/silap.smkn4tpi.com'),
+    // 'public_path' => null,  // Override the public path if needed
+    'public_path' => base_path('../public_html/silap.smkn4tpi.com'),
 
     /*
      * Dejavu Sans font is missing glyphs for converted entities, turn it off if you need to show € and £.

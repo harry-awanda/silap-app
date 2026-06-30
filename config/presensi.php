@@ -7,11 +7,6 @@ return [
   | School Geofence
   |--------------------------------------------------------------------------
   | Koordinat sekolah dan radius geofence (meter).
-
-  Home: 0.919389, 104.518120
-
-  School: 0.9087880935810898, 104.54397372883564
-
   */
   'school' => [
     'lat' => (float) env('SCHOOL_LAT', 0.9087880935810898),
@@ -31,7 +26,7 @@ return [
   |--------------------------------------------------------------------------
   | Cutoff Time (Asia/Jakarta)
   |--------------------------------------------------------------------------
-  | Batas waktu keterlambatan harian siswa (mis. presensi masuk > 07:30 = terlambat).
+  | Batas waktu keterlambatan harian siswa.
   */
   'cutoff_time' => env('SCHOOL_CUTOFF', '07:30'),
 
@@ -63,22 +58,5 @@ return [
   |--------------------------------------------------------------------------
   */
   'allow_override_guru_status' => (bool) env('ALLOW_OVERRIDE_GURU_STATUS', false),
-
-  /*
-  |--------------------------------------------------------------------------
-  | AUTO ALPA (tanpa scheduler)
-  |--------------------------------------------------------------------------
-  | - enabled       : matikan/aktifkan fitur.
-  | - run_cutoff    : jam eksekusi logis; jika sekarang < jam ini,
-  |                   target tanggal bergeser ke hari sekolah sebelumnya.
-  | - active_days   : ISO (1=Senin ... 7=Minggu). Default: Senin-Jumat.
-  | - default_time  : wajib karena kolom time non-nullable.
-  */
-//   'auto_alpa' => [
-//     'enabled'     => (bool) env('AUTO_ALPA_ENABLED', true),
-//     'run_cutoff'  => env('AUTO_ALPA_CUTOFF', '15:00'),
-//     'active_days' => [1, 2, 3, 4, 5],
-//     'default_time' => env('AUTO_ALPA_TIME', '00:00:00')
-//   ],
 
 ];
