@@ -31,6 +31,9 @@
   {{-- Header: Filter tanggal --}}
   <div class="card-header d-flex justify-content-start align-items-center">
     <form method="GET" class="d-flex flex-wrap gap-2 align-items-center w-100">
+      @if($status)
+        <input type="hidden" name="status" value="{{ $status }}">
+      @endif
       <div>
         <input type="date" name="from" value="{{ $from }}" class="form-control" />
       </div>
@@ -43,6 +46,18 @@
         </button>
         <a href="{{ route('siswa.absensi.index', $siswa->id) }}" class="btn btn-label-secondary">
           <i class="bx bx-reset me-2"></i>Reset
+        </a>
+        <a
+          href="{{ route('siswa.absensi.export', [
+            'siswa' => $siswa->id,
+            'from' => $from,
+            'to' => $to,
+            'status' => $status,
+          ]) }}"
+          class="btn btn-success"
+          title="Export data yang sedang ditampilkan ke PDF"
+        >
+          <i class="bx bx-download me-2"></i>Export PDF
         </a>
       </div>
 
@@ -59,31 +74,56 @@
 
     {{-- Rekap singkat --}}
     <div class="row g-2 mb-3">
-      <div class="col-6 col-md">
-        <div class="p-2 border rounded">
-          <div class="text-muted small">Izin</div>
-          <div class="fw-semibold">{{ $rekap['izin'] ?? 0 }}</div>
+      @php
+        $statusCards = [
+          'izin' => ['label' => 'Izin', 'color' => 'info'],
+          'sakit' => ['label' => 'Sakit', 'color' => 'warning'],
+          'alpa' => ['label' => 'Alpa', 'color' => 'danger'],
+          'terlambat' => ['label' => 'Terlambat', 'color' => 'secondary'],
+        ];
+
+        $baseFilter = array_filter([
+          'from' => $from,
+          'to' => $to,
+        ], fn($value) => filled($value));
+      @endphp
+
+      @foreach($statusCards as $statusKey => $card)
+        @php
+          $isActive = $status === $statusKey;
+          $href = route('siswa.absensi.index', [
+            'siswa' => $siswa->id,
+            ...($isActive ? $baseFilter : array_merge($baseFilter, ['status' => $statusKey])),
+          ]);
+        @endphp
+        <div class="col-6 col-md">
+          <a
+            href="{{ $href }}"
+            class="d-block p-2 border rounded text-decoration-none {{ $isActive ? 'border-' . $card['color'] . ' bg-label-' . $card['color'] : 'text-body' }}"
+            title="Tampilkan data {{ strtolower($card['label']) }}"
+          >
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="text-muted small">{{ $card['label'] }}</div>
+              @if($isActive)
+                <span class="badge bg-{{ $card['color'] }}">Aktif</span>
+              @endif
+            </div>
+            <div class="fw-semibold">{{ $rekap[$statusKey] ?? 0 }}</div>
+          </a>
         </div>
-      </div>
-      <div class="col-6 col-md">
-        <div class="p-2 border rounded">
-          <div class="text-muted small">Sakit</div>
-          <div class="fw-semibold">{{ $rekap['sakit'] ?? 0 }}</div>
-        </div>
-      </div>
-      <div class="col-6 col-md">
-        <div class="p-2 border rounded">
-          <div class="text-muted small">Alpa</div>
-          <div class="fw-semibold">{{ $rekap['alpa'] ?? 0 }}</div>
-        </div>
-      </div>
-      <div class="col-6 col-md">
-        <div class="p-2 border rounded">
-          <div class="text-muted small">Terlambat</div>
-          <div class="fw-semibold">{{ $rekap['terlambat'] ?? 0 }}</div>
-        </div>
-      </div>
+      @endforeach
     </div>
+
+    @if($status)
+      <div class="alert alert-info d-flex flex-wrap align-items-center gap-2 py-2" role="alert">
+        <span>
+          Menampilkan absensi dengan status <strong>{{ ucfirst($status) }}</strong>.
+        </span>
+        <a href="{{ route('siswa.absensi.index', array_merge(['siswa' => $siswa->id], $baseFilter)) }}" class="alert-link">
+          Tampilkan semua status
+        </a>
+      </div>
+    @endif
 
     {{-- Tabel riwayat --}}
     <div class="table-responsive text-nowrap table-hover">

@@ -73,6 +73,38 @@
       </div>
     </form>
 
+    @role('admin')
+      @php
+        $purgeOptions = [30, 60, 90];
+      @endphp
+      <div class="alert alert-warning d-flex flex-column flex-lg-row gap-3 align-items-lg-center justify-content-between mb-3" role="alert">
+        <div>
+          <div class="fw-semibold">Hapus history presensi hadir</div>
+          <div class="small">
+            Menghapus data <strong>hadir</strong> yang lebih lama dari pilihan hari. Data 30/60/90 hari terakhir tetap disimpan.
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          @foreach($purgeOptions as $days)
+            @php
+              $cutoff = now()->startOfDay()->subDays($days)->toDateString();
+            @endphp
+            <form
+              method="POST"
+              action="{{ route('audit.attendance.purge-present-history', array_merge(request()->query(), ['days' => $days])) }}"
+              onsubmit="return confirm('Hapus semua data presensi HADIR sebelum {{ $cutoff }}? Data {{ $days }} hari terakhir tidak akan dihapus.');"
+            >
+              @csrf
+              @method('DELETE')
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bx bx-trash me-1"></i> &gt; {{ $days }} hari
+              </button>
+            </form>
+          @endforeach
+        </div>
+      </div>
+    @endrole
+
     {{-- ==================== RINGKASAN STATUS ==================== --}}
     @php
       $rekap = collect($rekapStatus ?? []);

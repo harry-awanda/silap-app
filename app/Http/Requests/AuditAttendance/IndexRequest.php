@@ -9,7 +9,7 @@ class IndexRequest extends FormRequest {
   public function authorize(): bool {
     // Sesuaikan role sesuai kebijakan kamu.
     // Contoh: admin/kesiswaan/guru_bk boleh audit.
-    return auth()->check() && auth()->user()->hasAnyRole(['admin','kesiswaan','guru_bk', 'guru_piket']);
+    return auth()->check() && auth()->user()->hasAnyRole(['admin','kesiswaan','guru','guru_bk', 'guru_piket']);
   }
 
   protected function prepareForValidation(): void {

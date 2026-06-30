@@ -7,6 +7,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Exports\AttendanceDailyExport;
+use App\Models\Attendance;
 
 use App\Http\Requests\AuditAttendance\{IndexRequest, DtRequest, ExportRequest, LateLeaderboardRequest};
 use App\Services\AuditAttendance\AuditAttendanceService;
@@ -67,6 +68,22 @@ class AuditAttendanceController extends Controller {
       new AttendanceDailyExport($termId, $date, $status, $kelasId),
       $filename
     );
+  }
+
+  public function purgePresentHistory(int $days) {
+    abort_unless(auth()->check() && auth()->user()->hasRole('admin'), 403);
+    abort_unless(in_array($days, [30, 60, 90], true), 404);
+
+    $cutoff = now()->startOfDay()->subDays($days)->toDateString();
+
+    $deleted = Attendance::query()
+      ->where('status', 'hadir')
+      ->whereDate('date', '<', $cutoff)
+      ->delete();
+
+    return redirect()
+      ->route('audit.attendance.index', request()->query())
+      ->with('success', "Berhasil menghapus {$deleted} data presensi hadir sebelum {$cutoff}. Data {$days} hari terakhir tetap disimpan.");
   }
 
   public function lateLeaderboard(LateLeaderboardRequest $r) {
