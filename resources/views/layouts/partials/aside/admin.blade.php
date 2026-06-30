@@ -153,6 +153,14 @@
       <div class="text-truncate">Jadwal Piket</div>
     </a>
   </li>
+
+  {{-- QR TOKEN --}}
+  <li class="menu-item {{ $rs('admin.qr-tokens.*') ? 'active' : '' }}">
+    <a href="{{ route('admin.qr-tokens.index') }}" class="menu-link">
+      <i class="menu-icon tf-icons bx bx-qr"></i>
+      <div class="text-truncate">QR Token</div>
+    </a>
+  </li>
   @endrole
 
   @role('superadmin')
