@@ -11,7 +11,7 @@ class Attendance extends Model {
 	
   protected $fillable = ['term_id','siswa_id','classroom_id','date','time','status',
   'latitude','longitude','accuracy_m',
-  'source','user_agent'];
+  'source','notes','user_agent'];
   
   protected $casts = [
     'date' => 'date',

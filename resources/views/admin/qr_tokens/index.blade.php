@@ -48,6 +48,42 @@
     </div>
   </div>
 
+  {{-- LATE ATTENDANCE STATIC QR --}}
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
+        <span><i class="bx bx-qr"></i> QR Presensi Terlambat</span>
+        @if($lateQrUrl)
+          <span class="badge bg-label-warning">Statis</span>
+        @else
+          <span class="badge bg-label-danger">Belum dikonfigurasi</span>
+        @endif
+      </div>
+
+      <div class="card-body">
+        @if($lateQrUrl)
+          <div class="row g-3 align-items-center">
+            <div class="col-md-4">
+              <div class="border rounded p-3 d-flex justify-content-center">
+                <div id="lateAttendanceQr"></div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="alert alert-warning mb-3">
+                QR ini digunakan guru piket untuk siswa yang datang terlambat. Siswa tetap login, scan QR, lalu sistem mencatat status terlambat.
+              </div>
+              <label class="form-label">URL QR</label>
+              <input type="text" class="form-control" value="{{ $lateQrUrl }}" readonly onclick="this.select()">
+            </div>
+          </div>
+        @else
+          <div class="alert alert-danger mb-0">
+            Tambahkan <code>LATE_ATTENDANCE_QR_SECRET</code> di environment agar QR presensi terlambat bisa dibuat.
+          </div>
+        @endif
+      </div>
+    </div>
+  </div>
   {{-- CLEANUP PANEL --}}
   <div class="col-12">
     <div class="card">
@@ -182,3 +218,22 @@
 
 </div>
 @endsection
+@push('scripts')
+@if($lateQrUrl)
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+(function () {
+  const el = document.getElementById('lateAttendanceQr');
+  if (!el) return;
+
+  el.innerHTML = '';
+  new QRCode(el, {
+    text: @json($lateQrUrl),
+    width: 220,
+    height: 220,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+})();
+</script>
+@endif
+@endpush

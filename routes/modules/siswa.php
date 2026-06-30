@@ -17,4 +17,13 @@ Route::middleware(['protected', 'role:siswa'])->group(function () {
   Route::post('presensi', [SelfAttendanceController::class, 'store'])
     ->middleware(['throttle:attendance'])
     ->name('presensi.store');
+
+  Route::get('presensi/terlambat/{token}', [SelfAttendanceController::class, 'lateForm'])
+    ->where('token', '[^/]+')
+    ->name('presensi.late.form');
+
+  Route::post('presensi/terlambat/{token}', [SelfAttendanceController::class, 'lateStore'])
+    ->where('token', '[^/]+')
+    ->middleware(['throttle:attendance'])
+    ->name('presensi.late.store');
 });

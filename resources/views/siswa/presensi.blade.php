@@ -10,20 +10,27 @@
 <div class="card">
   <div class="card-body">
     <p class="mb-3">
-      Presensi mandiri hanya bisa dari <strong>area sekolah</strong>.
+      {{ $introText ?? 'Presensi mandiri hanya bisa dari area sekolah.' }}
     </p>
 
-    <div id="statusBox" class="alert alert-info">Memeriksa lokasi perangkat…</div>
+    @if(($mode ?? 'present') === 'late')
+      <div class="alert alert-warning">
+        <div class="fw-semibold">Mode presensi terlambat</div>
+        <div>Gunakan halaman ini hanya saat scan QR terlambat yang didampingi guru piket.</div>
+      </div>
+    @endif
 
-    <form id="attForm" method="POST" action="{{ route('presensi.store') }}" class="d-none">
+    <div id="statusBox" class="alert alert-info">Memeriksa lokasi perangkat...</div>
+
+    <form id="attForm" method="POST" action="{{ $formAction ?? route('presensi.store') }}" class="d-none">
       @csrf
       <input type="hidden" name="latitude"  id="lat">
       <input type="hidden" name="longitude" id="lng">
       <input type="hidden" name="accuracy"  id="acc">
       <input type="hidden" name="user_agent" value="{{ request()->userAgent() }}" />
 
-      <button id="btnAbsen" type="submit" class="btn btn-success">
-        <i class="bx bx-check-circle me-1"></i> Absen Hadir
+      <button id="btnAbsen" type="submit" class="btn {{ ($mode ?? 'present') === 'late' ? 'btn-warning' : 'btn-success' }}">
+        <i class="bx bx-check-circle me-1"></i> {{ $buttonLabel ?? 'Absen Hadir' }}
       </button>
     </form>
 
@@ -32,7 +39,7 @@
 
     <hr>
     <small class="text-muted">
-      Catatan: Jika GPS bermasalah atau akurasi terlalu tinggi, minta guru piket untuk input (izin/sakit/alpa).
+      Catatan: Jika GPS bermasalah atau akurasi terlalu tinggi, minta bantuan guru piket.
     </small>
   </div>
 </div>
@@ -93,7 +100,6 @@
     }
   }
 
-  // Submit via fetch agar tidak pindah halaman
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
     btnAbsen.disabled = true;
@@ -116,9 +122,9 @@
       });
       const data = await r.json().catch(() => ({}));
       if (r.ok && data.ok) {
-        showResult(true, (data.message || 'Presensi berhasil') + (data.time ? ' — ' + data.time : ''));
+        showResult(true, (data.message || 'Presensi berhasil') + (data.time ? ' - ' + data.time : ''));
         btnAbsen.textContent = 'Sudah Presensi';
-        btnAbsen.classList.remove('btn-success');
+        btnAbsen.classList.remove('btn-success', 'btn-warning');
         btnAbsen.classList.add('btn-secondary');
         btnAbsen.disabled = true;
       } else {
@@ -145,7 +151,7 @@
     lngEl.value = lng;
     accEl.value = acc || '';
 
-    statusBox.textContent = 'Memvalidasi lokasi ke server…';
+    statusBox.textContent = 'Memvalidasi lokasi ke server...';
     precheck(lat, lng, acc);
 
   }, function(err) {

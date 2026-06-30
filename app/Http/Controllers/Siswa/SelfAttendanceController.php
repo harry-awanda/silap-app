@@ -18,11 +18,31 @@ class SelfAttendanceController extends Controller {
   public function form(Request $request) {
     $cfg = config('presensi');
 
-    $title       = 'Presensi Kehadiran';
-    $school      = $cfg['school'];
-    $maxAccuracy = $cfg['max_accuracy_m'];
+    return view('siswa.presensi', [
+      'title' => 'Presensi Kehadiran',
+      'school' => $cfg['school'],
+      'maxAccuracy' => $cfg['max_accuracy_m'],
+      'formAction' => route('presensi.store'),
+      'buttonLabel' => 'Absen Hadir',
+      'introText' => 'Presensi mandiri hanya bisa dari area sekolah.',
+      'mode' => 'present',
+    ]);
+  }
 
-    return view('siswa.presensi', compact('title', 'school', 'maxAccuracy'));
+  public function lateForm(Request $request, string $token) {
+    $this->assertLateQrToken($token);
+
+    $cfg = config('presensi');
+
+    return view('siswa.presensi', [
+      'title' => 'Presensi Terlambat',
+      'school' => $cfg['school'],
+      'maxAccuracy' => $cfg['max_accuracy_m'],
+      'formAction' => route('presensi.late.store', ['token' => $token]),
+      'buttonLabel' => 'Absen Terlambat',
+      'introText' => 'Presensi ini khusus siswa terlambat melalui QR guru piket.',
+      'mode' => 'late',
+    ]);
   }
 
   public function precheck(Request $request) {
@@ -55,6 +75,28 @@ class SelfAttendanceController extends Controller {
   }
 
   public function store(Request $request) {
+    return $this->recordAttendance(
+      request: $request,
+      status: 'hadir',
+      source: 'self',
+      notes: 'Presensi mandiri',
+      successMessage: 'Presensi berhasil.'
+    );
+  }
+
+  public function lateStore(Request $request, string $token) {
+    $this->assertLateQrToken($token);
+
+    return $this->recordAttendance(
+      request: $request,
+      status: 'terlambat',
+      source: 'late_qr',
+      notes: 'Presensi terlambat via QR guru piket',
+      successMessage: 'Presensi terlambat berhasil.'
+    );
+  }
+
+  private function recordAttendance(Request $request, string $status, string $source, string $notes, string $successMessage) {
     $siswa = Siswa::where('user_id', $request->user()->id)->firstOrFail();
 
     $termId = (int) ($request->attributes->get('activeTermId') ?? 0);
@@ -86,11 +128,9 @@ class SelfAttendanceController extends Controller {
 
     $this->guardSpeed($request, (float) $data['latitude'], (float) $data['longitude']);
 
-    $now    = Carbon::now();
-    $cutoff = Carbon::createFromFormat('H:i', config('presensi.cutoff_time', '07:15'));
-    $status = $now->gt($cutoff) ? 'terlambat' : 'hadir';
+    $now = Carbon::now();
 
-    return DB::transaction(function () use ($request, $siswa, $data, $now, $status, $termId, $classroomId) {
+    return DB::transaction(function () use ($request, $siswa, $data, $now, $status, $source, $notes, $successMessage, $termId, $classroomId) {
       $today = $now->toDateString();
 
       $existing = Attendance::query()
@@ -122,18 +162,24 @@ class SelfAttendanceController extends Controller {
         'latitude'     => $data['latitude'],
         'longitude'    => $data['longitude'],
         'accuracy_m'   => $data['accuracy'] ?? null,
-        'source'       => 'self',
-        'notes'        => 'Presensi mandiri',
+        'source'       => $source,
+        'notes'        => $notes,
         'user_agent'   => substr(($data['user_agent'] ?? $request->userAgent() ?? ''), 0, 255),
       ]);
 
       return response()->json([
         'ok'      => true,
-        'message' => $status === 'hadir' ? 'Presensi berhasil.' : 'Presensi berhasil (terlambat).',
+        'message' => $successMessage,
         'status'  => $att->status,
         'time'    => $att->time,
       ]);
     });
+  }
+
+  private function assertLateQrToken(string $token): void {
+    $expected = trim((string) config('presensi.late_qr_secret', ''));
+
+    abort_if($expected === '' || !hash_equals($expected, trim($token)), 403, 'QR presensi terlambat tidak valid.');
   }
 
   private function guardSpeed(Request $request, float $lat, float $lng): void {

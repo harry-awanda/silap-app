@@ -18,8 +18,12 @@ class QrTokenController extends Controller {
     ];
 
     $latest = QrToken::orderByDesc('id')->limit(20)->get();
+    $lateQrSecret = trim((string) config('presensi.late_qr_secret', ''));
+    $lateQrUrl = $lateQrSecret !== ''
+      ? route('presensi.late.form', ['token' => $lateQrSecret])
+      : null;
 
-    return view('admin.qr_tokens.index', compact('stats', 'latest', 'title'));
+    return view('admin.qr_tokens.index', compact('stats', 'latest', 'title', 'lateQrUrl'));
   }
 
   public function cleanup(Request $request) {
