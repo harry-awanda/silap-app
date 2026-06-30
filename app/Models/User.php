@@ -7,11 +7,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable {
 
-  use HasRoles, HasApiTokens, HasFactory, Notifiable, CanResetPassword;
+  use HasRoles, HasFactory, Notifiable, CanResetPassword;
   
   protected $guard_name = 'web';
   protected $fillable = [ 'name', 'username', 'email', 'password', 'must_change_password', 'password_changed_at', 'disabled_at',];

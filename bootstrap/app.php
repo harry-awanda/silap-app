@@ -37,7 +37,6 @@ return Application::configure(basePath: dirname(__DIR__))
       'force.password.change' => ForcePasswordChange::class,
       'block.disabled' => BlockDisabledUser::class,
       'assetly.key' => VerifyAssetlyKey::class,
-
     ]);
     
     // aktifkan TrustProxies (yang baca TRUST_MODE/ENV)
@@ -49,9 +48,6 @@ return Application::configure(basePath: dirname(__DIR__))
       'block.disabled',
     ]);
     
-    $middleware->group('protected_api', [
-      'auth:sanctum',
-    ]);
   })
   ->withExceptions(function (Exceptions $exceptions) {
     $exceptions->render(function (TokenMismatchException $e, $request) {
