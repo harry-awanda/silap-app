@@ -10,7 +10,7 @@ return new class extends Migration {
       $table->id();
 
       $table->string('token', 80)->unique(); // token QR
-      $table->string('purpose', 30)->default('asse_borrower'); // future-proof
+      $table->string('purpose', 30)->default('assetly_borrower'); // future-proof
 
       // borrower type: student|teacher
       $table->string('subject_type', 20);
