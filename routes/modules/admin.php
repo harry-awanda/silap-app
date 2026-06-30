@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\{
   QrTokenController
 };
 
-Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('role:admin|superadmin')->group(function () {
 
   // Reset password sementara
   Route::post('users/{user}/reset-password-temp', [UserPasswordController::class, 'resetTemp'])
