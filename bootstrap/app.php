@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Session\TokenMismatchException;
 
 // use App\Http\Middleware\CheckRole;
@@ -50,6 +51,16 @@ return Application::configure(basePath: dirname(__DIR__))
     
   })
   ->withExceptions(function (Exceptions $exceptions) {
+    $exceptions->render(function (AuthenticationException $e, $request) {
+      if ($request->expectsJson()) {
+        return null;
+      }
+
+      return redirect()
+        ->guest(route('login'))
+        ->with('warning', 'Anda harus login terlebih dahulu.');
+    });
+
     $exceptions->render(function (TokenMismatchException $e, $request) {
       // Redirect ke halaman login
       return redirect()

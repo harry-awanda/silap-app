@@ -32,8 +32,8 @@ class AuthController extends Controller {
     if (Auth::attempt($credentials, $remember)) {
       // Regenerasi sesi setelah login untuk mencegah session fixation
       $request->session()->regenerate();
-      // Jika berhasil login, redirect ke dashboard atau halaman yang sesuai
-      return redirect()->route('dashboard')->with('loginSuccess', 'Selamat datang kembali');
+      // Jika berhasil login, kembalikan ke URL yang sempat dituju (mis. QR presensi), atau dashboard.
+      return redirect()->intended(route('dashboard'))->with('loginSuccess', 'Selamat datang kembali');
     } else {
       // Jika gagal login, redirect kembali ke halaman login dengan pesan error
       return redirect()->back()->with('loginError', 'Username atau password salah.')->withInput();
