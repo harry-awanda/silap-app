@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Attendance, Siswa};
 use App\Services\GeoFenceService;
+use App\Support\LateAttendanceQr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -177,9 +178,7 @@ class SelfAttendanceController extends Controller {
   }
 
   private function assertLateQrToken(string $token): void {
-    $expected = trim((string) config('presensi.late_qr_secret', ''));
-
-    abort_if($expected === '' || !hash_equals($expected, trim($token)), 403, 'QR presensi terlambat tidak valid.');
+    abort_unless(LateAttendanceQr::matches($token), 403, 'QR presensi terlambat tidak valid.');
   }
 
   private function guardSpeed(Request $request, float $lat, float $lng): void {

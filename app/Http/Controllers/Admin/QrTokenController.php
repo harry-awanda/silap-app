@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\QrToken;
+use App\Support\LateAttendanceQr;
 
 class QrTokenController extends Controller {
 
@@ -18,12 +19,15 @@ class QrTokenController extends Controller {
     ];
 
     $latest = QrToken::orderByDesc('id')->limit(20)->get();
-    $lateQrSecret = trim((string) config('presensi.late_qr_secret', ''));
-    $lateQrUrl = $lateQrSecret !== ''
-      ? route('presensi.late.form', ['token' => $lateQrSecret])
-      : null;
+    $lateQrUrl = LateAttendanceQr::url();
 
     return view('admin.qr_tokens.index', compact('stats', 'latest', 'title', 'lateQrUrl'));
+  }
+
+  public function generateLateQr(Request $request) {
+    LateAttendanceQr::generate();
+
+    return back()->with('success', 'QR presensi terlambat berhasil digenerate. QR lama tidak berlaku lagi.');
   }
 
   public function cleanup(Request $request) {

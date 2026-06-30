@@ -45,6 +45,7 @@ Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function
 
   Route::prefix('qr-tokens')->name('qr-tokens.')->group(function () {
     Route::get('/', [QrTokenController::class, 'index'])->name('index');
+    Route::post('late/generate', [QrTokenController::class, 'generateLateQr'])->name('late.generate');
     Route::post('cleanup', [QrTokenController::class, 'cleanup'])->name('cleanup');
   });
   

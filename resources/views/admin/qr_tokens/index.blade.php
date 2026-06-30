@@ -54,7 +54,7 @@
       <div class="card-header fw-semibold d-flex justify-content-between align-items-center">
         <span><i class="bx bx-qr"></i> QR Presensi Terlambat</span>
         @if($lateQrUrl)
-          <span class="badge bg-label-warning">Statis</span>
+          <span class="badge bg-label-success">Database</span>
         @else
           <span class="badge bg-label-danger">Belum dikonfigurasi</span>
         @endif
@@ -74,12 +74,26 @@
               </div>
               <label class="form-label">URL QR</label>
               <input type="text" class="form-control" value="{{ $lateQrUrl }}" readonly onclick="this.select()">
+              <form method="POST" action="{{ route('admin.qr-tokens.late.generate') }}" class="mt-3"
+                    onsubmit="return confirm('Generate QR terlambat baru? QR lama tidak akan berlaku lagi.')">
+                @csrf
+                <button type="submit" class="btn btn-warning">
+                  <i class="bx bx-refresh"></i>
+                  Regenerate QR Terlambat
+                </button>
+              </form>
             </div>
           </div>
         @else
-          <div class="alert alert-danger mb-0">
-            Tambahkan <code>LATE_ATTENDANCE_QR_SECRET</code> di environment agar QR presensi terlambat bisa dibuat.
+          <div class="alert alert-danger">
+            QR presensi terlambat belum tersedia. Klik tombol generate untuk membuat token di database.
           </div>
+          <form method="POST" action="{{ route('admin.qr-tokens.late.generate') }}">
+            @csrf
+            <button type="submit" class="btn btn-warning">
+              <i class="bx bx-qr"></i> Generate QR Terlambat
+            </button>
+          </form>
         @endif
       </div>
     </div>
